@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,22 +80,89 @@ public class UsersResource implements RestUsers {
 	public User updateUser(String userId, String password, User user) {
 		Log.info("updateUser : user = " + userId + "; pwd = " + password + " ; userData = " + user);
 		// TODO: Complete method
-		throw new WebApplicationException(Status.NOT_IMPLEMENTED);
+
+		// Check if user is valid
+		if (userId == null || password == null) {
+			Log.info("UserId or password null.");
+			throw new WebApplicationException(Status.BAD_REQUEST);
+		}
+
+		// Check if user exists
+		if (user == null) {
+			Log.info("User does not exist.");
+			throw new WebApplicationException(Status.NOT_FOUND);
+		}
+
+		// Check if the password is correct
+		if (!user.getPassword().equals(password)) {
+			Log.info("Password is incorrect.");
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		// Check if user exists to update.
+		if (!users.containsKey(userId)) {
+			Log.info("User does not exists.");
+			throw new WebApplicationException(Status.NOT_FOUND);
+		}
+
+		users.put(userId, user);
+
+		return user;
 	}
 
 	@Override
 	public User deleteUser(String userId, String password) {
 		Log.info("deleteUser : user = " + userId + "; pwd = " + password);
-		// TODO: Complete method
-		throw new WebApplicationException(Status.NOT_IMPLEMENTED);
+
+		// Check if user is valid
+		if (userId == null || password == null) {
+			Log.info("UserId or password null.");
+			throw new WebApplicationException(Status.BAD_REQUEST);
+		}
+
+		var user = users.get(userId);
+
+		// Check if user exists
+		if (user == null) {
+			Log.info("User does not exist.");
+			throw new WebApplicationException(Status.NOT_FOUND);
+		}
+
+		// Check if the password is correct
+		if (!user.getPassword().equals(password)) {
+			Log.info("Password is incorrect.");
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		users.remove(userId);
+
+		return user;
 	}
 
 	@Override
 	public List<User> searchUsers(String pattern) {
 		Log.info("searchUsers : pattern = " + pattern);
 		// TODO: Complete method
-		throw new WebApplicationException(Status.NOT_IMPLEMENTED);
+
+		// Check if pattern is null
+		if (pattern == null) {
+			Log.info("Pattern null.");
+			throw new WebApplicationException(Status.BAD_REQUEST);
+		}
+
+		List<User> ans = new LinkedList<>();
+
+		users.forEach((key, value) -> {
+
+			if (value.getFullName().contains(pattern)) {
+				ans.add(value);
+			}
+
+		});
+
+		return ans;
 	}
+
 
 	@Override
 	public void associateAvatar(String userId, String password, byte[] avatar) {
@@ -121,6 +189,33 @@ public class UsersResource implements RestUsers {
 		Log.info("delete an avatar : user = " + userId + "; pwd = " + password);
 
 		// TODO: complete method
+		// Check if user data is valid
+		if (userId == null || password == null) {
+			Log.info("UserId or password null.");
+		}
+
+		var user = users.get(userId);
+
+		// Check if user exists
+		if (user == null) {
+			Log.info("User does not exist.");
+			throw new WebApplicationException(Status.NOT_FOUND);
+		}
+
+		// Check if the password is correct
+		if (!user.getPassword().equals(password)) {
+			Log.info("Password is incorrect.");
+			throw new WebApplicationException(Status.FORBIDDEN);
+		}
+
+		Path pathToFile = Paths.get(AVATAR_DIRECTORY + File.separator + user.getUserId() + ".png");
+
+		try {
+			Files.deleteIfExists(pathToFile);
+		} catch (Exception e) {
+			throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+		}
+
 	}
 
 	@Override

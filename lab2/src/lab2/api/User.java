@@ -1,27 +1,27 @@
 package lab2.api;
 
+
+import lombok.*;
+
 /**
  * Represents a User in the system
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
+
+
 	private String email;
 	private String userId;
 	private String fullName;
 	private String password;
-	
-	public User(){	
-	}
-	
-	public User(String userId, String fullName, String email, String password) {
-		super();
-		this.email = email;
-		this.userId = userId;
-		this.fullName = fullName;
-		this.password = password;
-	}
+
 
 	@Override
 	public int hashCode() {
+
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
@@ -29,10 +29,12 @@ public class User {
 		result = prime * result + ((password == null) ? 0 : password.hashCode());
 		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
 		return result;
+
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -61,43 +63,15 @@ public class User {
 		} else if (!userId.equals(other.userId))
 			return false;
 		return true;
-	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
-	public String getFullName() {
-		return fullName;
-	}
-
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	@Override
 	public String toString() {
+
 		return "User [email=" + email + ", userId=" + userId + ", fullName=" + fullName + ", password=" + password
 				+ "]";
-	}	
+
+	}
+
 }
