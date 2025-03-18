@@ -35,8 +35,7 @@ public class UsersResource implements RestUsers {
         Log.info("createUser : " + user);
 
         // Check if user data is valid
-        if (user.getUserId() == null || user.getPassword() == null || user.getFullName() == null
-                || user.getEmail() == null) {
+        if (user.getUserId() == null || user.getPassword() == null || user.getFullName() == null || user.getEmail() == null) {
             Log.info("User object invalid.");
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
@@ -49,18 +48,15 @@ public class UsersResource implements RestUsers {
         return user.getUserId();
     }
 
-    @Override
-    public User getUser(String userId, String password) {
-        Log.info("getUser : user = " + userId + "; pwd = " + password);
-
+    private void checkStep1(String userId, String password) {
         // Check if user is valid
         if (userId == null || password == null) {
             Log.info("UserId or password null.");
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
+    }
 
-        var user = users.get(userId);
-
+    private void checkStep2(String password, User user) {
         // Check if user exists
         if (user == null) {
             Log.info("User does not exist.");
@@ -72,32 +68,27 @@ public class UsersResource implements RestUsers {
             Log.info("Password is incorrect.");
             throw new WebApplicationException(Status.FORBIDDEN);
         }
+    }
 
+    private User checkUser(String userId, String password) {
+        checkStep1(userId, password);
+        var user = users.get(userId);
+        checkStep2(password, user);
         return user;
+    }
+
+    @Override
+    public User getUser(String userId, String password) {
+        Log.info("getUser : user = " + userId + "; pwd = " + password);
+        return checkUser(userId, password);
     }
 
     @Override
     public User updateUser(String userId, String password, User user) {
         Log.info("updateUser : user = " + userId + "; pwd = " + password + " ; userData = " + user);
-        // TODO: Complete method
 
-        // Check if user is valid
-        if (userId == null || password == null) {
-            Log.info("UserId or password null.");
-            throw new WebApplicationException(Status.BAD_REQUEST);
-        }
-
-        // Check if user exists
-        if (user == null) {
-            Log.info("User does not exist.");
-            throw new WebApplicationException(Status.NOT_FOUND);
-        }
-
-        // Check if the password is correct
-        if (!user.getPassword().equals(password)) {
-            Log.info("Password is incorrect.");
-            throw new WebApplicationException(Status.FORBIDDEN);
-        }
+        checkStep1(userId, password);
+        checkStep2(password, user);
 
         // Check if user exists to update.
         if (!users.containsKey(userId)) {
@@ -114,25 +105,7 @@ public class UsersResource implements RestUsers {
     public User deleteUser(String userId, String password) {
         Log.info("deleteUser : user = " + userId + "; pwd = " + password);
 
-        // Check if user is valid
-        if (userId == null || password == null) {
-            Log.info("UserId or password null.");
-            throw new WebApplicationException(Status.BAD_REQUEST);
-        }
-
-        var user = users.get(userId);
-
-        // Check if user exists
-        if (user == null) {
-            Log.info("User does not exist.");
-            throw new WebApplicationException(Status.NOT_FOUND);
-        }
-
-        // Check if the password is correct
-        if (!user.getPassword().equals(password)) {
-            Log.info("Password is incorrect.");
-            throw new WebApplicationException(Status.FORBIDDEN);
-        }
+        var user = checkUser(userId, password);
 
         users.remove(userId);
 
@@ -142,15 +115,13 @@ public class UsersResource implements RestUsers {
     @Override
     public List<User> searchUsers(String pattern) {
         Log.info("searchUsers : pattern = " + pattern);
-        // TODO: Complete method
         if (pattern == null) {
             return (List<User>) users.values();
         }
         List<User> ans = new LinkedList<>();
 
         users.forEach((key, value) -> {
-            if (value.getFullName().contains(pattern))
-                ans.add(value);
+            if (value.getFullName().contains(pattern)) ans.add(value);
         });
 
         return ans;
@@ -181,25 +152,7 @@ public class UsersResource implements RestUsers {
     public void removeAvatar(String userId, String password) {
         Log.info("delete an avatar : user = " + userId + "; pwd = " + password);
 
-        // TODO: complete method
-        // Check if user data is valid
-        if (userId == null || password == null) {
-            Log.info("UserId or password null.");
-        }
-
-        var user = users.get(userId);
-
-        // Check if user exists
-        if (user == null) {
-            Log.info("User does not exist.");
-            throw new WebApplicationException(Status.NOT_FOUND);
-        }
-
-        // Check if the password is correct
-        if (!user.getPassword().equals(password)) {
-            Log.info("Password is incorrect.");
-            throw new WebApplicationException(Status.FORBIDDEN);
-        }
+       var user = checkUser(userId, password);
 
         Path pathToFile = Paths.get(AVATAR_DIRECTORY + File.separator + user.getUserId() + ".png");
 
