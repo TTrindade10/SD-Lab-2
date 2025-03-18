@@ -25,9 +25,6 @@ public class DeleteUserClient {
 
         System.out.println("Sending request to server.");
 
-        //TODO: complete this client code
-
-
         ClientConfig config = new ClientConfig();
         Client client = ClientBuilder.newClient(config);
 
