@@ -144,7 +144,7 @@ public class UsersResource implements RestUsers {
         Log.info("searchUsers : pattern = " + pattern);
         // TODO: Complete method
         if (pattern == null) {
-            return users.values();
+            return (List<User>) users.values();
         }
         List<User> ans = new LinkedList<>();
 
